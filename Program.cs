@@ -31,9 +31,21 @@ await CommandLine.Parser.Default
         async (RestockBooksParameters parameters) => await service.HandleRestockCommandAsync(parameters),
         async errors =>
         {
-            foreach (var error in errors)
-                Console.WriteLine(error.ToString());
+            if (HandleDefaultOptions()) return await Task.FromResult(0);
+            else
+            {
+                foreach (var error in errors)
+                    Console.WriteLine(error.ToString());
 
-            return await Task.FromResult(1);
+                return await Task.FromResult(1);
+            }
+
+
+            bool HandleDefaultOptions()
+                => errors.SingleOrDefault() is Error defaultOption && defaultOption.Tag switch
+                {
+                    ErrorType.HelpRequestedError or ErrorType.HelpVerbRequestedError or ErrorType.VersionRequestedError => true,
+                    _ => false
+                };
         }
     );
