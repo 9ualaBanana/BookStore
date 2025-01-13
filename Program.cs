@@ -18,7 +18,8 @@ var options = new DbContextOptionsBuilder<BookStoreContext>()
     .Options;
 
 using (var context = new BookStoreContext(options))
-    await context.Database.EnsureCreatedAsync();
+    if ((await context.Database.GetPendingMigrationsAsync()).Any())
+        await context.Database.MigrateAsync();
 
 var service = new BookStoreService(options);
 
