@@ -3,9 +3,18 @@ using Microsoft.EntityFrameworkCore;
 using BookStore.Commands;
 using BookStore.Data;
 using BookStore.Services;
+using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Hosting;
+
+var configuration = new ConfigurationBuilder()
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{EnvironmentName.Development}.json", optional: true, reloadOnChange: true)
+    .AddEnvironmentVariables()
+    .Build();
 
 var options = new DbContextOptionsBuilder<BookStoreContext>()
-    .UseNpgsql("Host=localhost;Port=5433;Username=postgres;Password=postgres;Database=bookstore")
+    .UseNpgsql(configuration.GetConnectionString("Default"))
     .Options;
 
 using (var context = new BookStoreContext(options))
