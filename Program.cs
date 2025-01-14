@@ -11,23 +11,25 @@ await CommandLine.Parser.Default
         async (GetBooksParameters parameters) => await bookStoreService.HandleGetCommandAsync(parameters),
         async (BuyBooksParameters parameters) => await bookStoreService.HandleBuyCommandAsync(parameters),
         async (RestockBooksParameters parameters) => await bookStoreService.HandleRestockCommandAsync(parameters),
-        async errors =>
-        {
-            if (HandleDefaultOptions()) return await Task.FromResult(0);
-            else
-            {
-                foreach (var error in errors)
-                    Console.WriteLine(error.ToString());
-
-                return await Task.FromResult(1);
-            }
-
-
-            bool HandleDefaultOptions()
-                => errors.SingleOrDefault() is Error defaultOption && defaultOption.Tag switch
-                {
-                    ErrorType.HelpRequestedError or ErrorType.HelpVerbRequestedError or ErrorType.VersionRequestedError => true,
-                    _ => false
-                };
-        }
+        HandleErrorsAsync
     );
+
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+static async Task<int> HandleErrorsAsync(IEnumerable<Error> errors)
+{
+    if (HandleDefaultOptions()) return 0;
+
+    foreach (var error in errors)
+        Console.WriteLine(error.ToString());
+
+    return 1;
+
+
+    bool HandleDefaultOptions() => errors.SingleOrDefault() is Error defaultOption
+        && defaultOption.Tag switch
+        {
+            ErrorType.HelpRequestedError or ErrorType.HelpVerbRequestedError or ErrorType.VersionRequestedError => true,
+            _ => false
+        };
+}
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
