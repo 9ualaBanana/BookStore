@@ -9,10 +9,13 @@ var options = new DbContextOptionsBuilder<BookStoreContext>()
     .UseNpgsql(Configuration.Instance.GetConnectionString("Default"))
     .Options;
 
-using (var context = new BookStoreContext(options))
-    await context.Database.MigrateAsync();
-
 var service = new BookStoreService(options);
+using (var context = new BookStoreContext(options))
+{
+    await context.Database.MigrateAsync();
+    if (!context.Books.Any())
+        await service.SeedAsync();
+}
 
 await CommandLine.Parser.Default
     .ParseArguments<GetBooksParameters, BuyBooksParameters, RestockBooksParameters>(args)
