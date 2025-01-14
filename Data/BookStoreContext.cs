@@ -10,11 +10,13 @@ public class BookStoreContext(DbContextOptions<BookStoreContext> options) : DbCo
 {
     public DbSet<Book> Books { get; set; } = default!;
 
+    internal static DbContextOptions<BookStoreContext> DefaultOptions
+        => new DbContextOptionsBuilder<BookStoreContext>()
+        .UseNpgsql(Configuration.Instance.GetConnectionString("Default"))
+        .Options;
+
     public class Factory : IDesignTimeDbContextFactory<BookStoreContext>
     {
-        public BookStoreContext CreateDbContext(string[] args) => new(
-            new DbContextOptionsBuilder<BookStoreContext>()
-            .UseNpgsql(Configuration.Instance.GetConnectionString("Default"))
-            .Options);
+        public BookStoreContext CreateDbContext(string[] args) => new(DefaultOptions);
     }
 }

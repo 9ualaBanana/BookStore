@@ -6,8 +6,24 @@ using Polly;
 
 namespace BookStore.Services;
 
-internal class BookStoreService(DbContextOptions<BookStoreContext> contextOptions)
+internal class BookStoreService
 {
+    readonly DbContextOptions<BookStoreContext> contextOptions;
+
+    BookStoreService(DbContextOptions<BookStoreContext> contextOptions)
+    {
+        this.contextOptions = contextOptions;
+    }
+
+    internal static async Task<BookStoreService> InitializeAsync(DbContextOptions<BookStoreContext> contextOptions)
+    {
+        var service = new BookStoreService(contextOptions);
+        using var context = new BookStoreContext(contextOptions);
+        await context.Database.MigrateAsync();
+        if (!context.Books.Any())
+            await service.SeedAsync();
+        return service;
+    }
     public async Task<IEnumerable<Book>> GetBooksAsync(string? title = null, string? author = null, DateTime? date = null, string? orderBy = null)
     {
         using var context = new BookStoreContext(contextOptions);
