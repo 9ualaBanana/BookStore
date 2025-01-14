@@ -4,21 +4,13 @@ using BookStore.Commands;
 using BookStore.Data;
 using BookStore.Services;
 using Microsoft.Extensions.Configuration;
-using Microsoft.AspNetCore.Hosting;
-
-var configuration = new ConfigurationBuilder()
-    .SetBasePath(Directory.GetCurrentDirectory())
-    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-    .AddJsonFile($"appsettings.{EnvironmentName.Development}.json", optional: true, reloadOnChange: true)
-    .AddEnvironmentVariables()
-    .Build();
 
 var options = new DbContextOptionsBuilder<BookStoreContext>()
-    .UseNpgsql(configuration.GetConnectionString("Default"))
+    .UseNpgsql(Configuration.Instance.GetConnectionString("Default"))
     .Options;
 
 using (var context = new BookStoreContext(options))
-    await context.Database.EnsureCreatedAsync();
+    await context.Database.MigrateAsync();
 
 var service = new BookStoreService(options);
 
