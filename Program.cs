@@ -8,9 +8,9 @@ var bookStoreService = await BookStoreService.InitializeAsync(BookStoreContext.D
 await CommandLine.Parser.Default
     .ParseArguments<GetBooksParameters, BuyBooksParameters, RestockBooksParameters>(args)
     .MapResult(
-        async (GetBooksParameters parameters) => await bookStoreService.HandleGetCommandAsync(parameters),
-        async (BuyBooksParameters parameters) => await bookStoreService.HandleBuyCommandAsync(parameters),
-        async (RestockBooksParameters parameters) => await bookStoreService.HandleRestockCommandAsync(parameters),
+        async (GetBooksParameters get) => await bookStoreService.HandleCommandAsync(get),
+        async (BuyBooksParameters buy) => await bookStoreService.HandleCommandAsync(buy),
+        async (RestockBooksParameters restock) => await bookStoreService.HandleCommandAsync(restock),
         HandleErrorsAsync
     );
 
