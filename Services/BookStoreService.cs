@@ -84,7 +84,10 @@ internal class BookStoreService
         switch (Configuration.Instance["SeedStrategy"])
         {
             case "remote":
-                await SeedFromGoogleBooksAsync();
+                try
+                { await SeedFromGoogleBooksAsync(); }
+                catch
+                { await SeedFromLocalStaticDataAsync(); }
                 break;
             default:
                 await SeedFromLocalStaticDataAsync();
